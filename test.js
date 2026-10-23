@@ -1,159 +1,102 @@
-
 /**
- * 每日60S — Quantumult X 版
- * 基于 Nullwhy/Egern 的 Day60s 模块转换
+ * 每日 60 秒读懂世界
  *
  * 功能：
- * 1. 通知正文显示新闻文字和每日微语
- * 2. 点击通知打开对应日期的 HTML 海报
- * 3. 关联 GitHub Pages
- * 4. 同日允许多次推送
- * 5. 保留备用 API、多条通知、新闻数量限制
+ * 1. 通知直接显示新闻内容（最多 5 条）和微语
+ * 2. 点击通知打开对应日期的 HTML 新闻海报
+ * 3. 允许同一天重复推送，不进行日期去重
+ * 4. 主 API 失败时自动尝试备用 API
+ *
+ * 定时任务示例：
+ * cron "0 0 8 * * *" script-path=60s.js, tag=每日60秒新闻
  */
 
-const SCRIPT_NAME = "每日60S";
-const TITLE_MAIN = "每日60S · 读懂世界 💭";
-const SCRIPT_VERSION = "QX-v1.1";
-
-// ===== 用户配置 =====
 const API_URL = "https://60s-api.viki.moe/v2/60s";
 const FALLBACK_APIS = [
   "https://60s.viki.moe/v2/60s"
 ];
 
-const MAX_NEWS = 5;          // 0=全部新闻
-const MULTI_NOTIFY = false;  // true=拆分为多条通知
-const CHUNK_SIZE = 5;        // 每条通知新闻数
+// 新闻最多显示条数；0 表示不限制
+const MAX_NEWS = 5;
 
-// HTML 海报页面
-const HTML_URL = "https://gary-strive.github.io/daily60s/";
+// false：合并为一条通知
+// true：按 CHUNK_SIZE 分批发送多条通知
+const MULTI_NOTIFY = false;
+const CHUNK_SIZE = 5;
 
-// 同日允许多次推送
+// 点击通知打开的 HTML 新闻海报
+const HTML_URL = "https://gary-strive.github.io/daily-news-60s/";
+
+// 允许同一天重复通知
 const ALLOW_REPEAT = true;
 
-// 保留原配置项，但不再用于同日去重
-const STORE_KEY = "60s_last_date_qx";
+// ==================== 通用函数 ====================
 
-// ===== 基础工具 =====
-function log(message) {
-  console.log("[" + SCRIPT_NAME + "] " + message);
+function getToday() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
-function getError(error) {
-  return String(error && error.message ? error.message : error);
-}
-
-function stripLeadingIndex(text) {
-  return String(text || "")
-    .replace(/^\s*\d+\s*[.．、:：]\s*/, "")
-    .trim();
-}
-
-function chunkArray(array, size) {
-  const result = [];
-  const step = Math.max(1, size);
-
-  for (let i = 0; i < array.length; i += step) {
-    result.push(array.slice(i, i + step));
-  }
-
-  return result.length ? result : [[]];
-}
-
-function buildBody(news, startIndex, tip) {
-  const lines = news.map((item, index) => {
-    let title = typeof item === "string"
-      ? item
-      : item && (item.title || item.text || item.content);
-
-    title = stripLeadingIndex(title || "");
-    return title ? (startIndex + index + 1) + ". " + title : "";
-  }).filter(Boolean);
-
-  if (tip) {
-    lines.push("");
-    lines.push("【微语】" + String(tip)
-      .replace(/^\s*【\s*微语\s*】\s*/, "")
-      .trim());
-  }
-
-  return lines.join("\n") || "暂无新闻";
-}
-
-function buildSubtitle(data) {
-  const parts = [];
-
-  if (data.date) parts.push(data.date);
-  if (data.day_of_week) parts.push(data.day_of_week);
-
-  let result = parts.join("  ");
-
-  if (data.lunar_date) {
-    result += (result ? "  ·  " : "") + data.lunar_date;
-  }
-
-  return result || "读懂世界";
-}
-
-// ===== HTML 海报地址 =====
 function buildHTMLURL(date) {
-  let url = HTML_URL;
-
-  // 日期参数用于让网页识别对应日期
-  if (/^\d{4}-\d{2}-\d{2}$/.test(String(date || ""))) {
-    url += "?date=" + encodeURIComponent(date);
+  const base = HTML_URL.replace(/\/+$/, "") + "/";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return base + "?date=" + encodeURIComponent(date);
   }
-
-  return url;
+  return base;
 }
 
-// ===== QX 请求 =====
 function fetchJSON(url) {
   return $task.fetch({
     url: url,
     method: "GET",
     headers: {
       "Accept": "application/json",
-      "User-Agent": "QuantumultX-60s/" + SCRIPT_VERSION
+      "User-Agent": "Quantumult X"
     },
-    timeout: 10000
-  }).then(function (response) {
+    timeout: 15000
+  }).then(response => {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw new Error("HTTP " + response.statusCode);
     }
 
-    let json;
-
+    let result;
     try {
-      json = JSON.parse(response.body || "{}");
+      result = JSON.parse(response.body);
     } catch (e) {
-      throw new Error("JSON 解析失败");
+      throw new Error("API 返回的内容不是有效 JSON");
     }
 
-    if (!json || (!json.data && json.code !== 200)) {
-      throw new Error("API 返回数据异常");
+    if (!result || typeof result !== "object") {
+      throw new Error("API 返回的数据格式异常");
     }
 
-    return json;
+    return result;
   });
 }
 
 function loadNews() {
-  const urls = [];
-
-  [API_URL].concat(FALLBACK_APIS).forEach(function (url) {
-    if (url && urls.indexOf(url) === -1) {
-      urls.push(url);
-    }
-  });
+  const urls = [API_URL].concat(FALLBACK_APIS);
 
   function tryNext(index, lastError) {
     if (index >= urls.length) {
-      throw lastError || new Error("所有 API 均请求失败");
+      throw lastError || new Error("所有新闻 API 均不可用");
     }
 
-    return fetchJSON(urls[index]).catch(function (error) {
-      log("接口 " + (index + 1) + " 失败：" + getError(error));
+    return fetchJSON(urls[index]).then(result => {
+      const data = result.data || result;
+
+      if (!data || !Array.isArray(data.news) || data.news.length === 0) {
+        throw new Error("API 未返回有效新闻列表");
+      }
+
+      return data;
+    }).catch(error => {
+      console.log(
+        "新闻 API 失败：" + urls[index] + "；原因：" + error.message
+      );
       return tryNext(index + 1, error);
     });
   }
@@ -161,83 +104,130 @@ function loadNews() {
   return tryNext(0, null);
 }
 
-// ===== QX 通知 =====
-function notify(title, subtitle, body, openURL) {
-  const options = {};
-
-  if (openURL && /^https?:\/\//i.test(openURL)) {
-    options["open-url"] = openURL;
-  }
-
-  $notify(title, subtitle, body, options);
+function cleanText(value) {
+  if (value === undefined || value === null) return "";
+  return String(value).trim();
 }
 
-// ===== 主流程 =====
-function main() {
-  log("开始运行 " + SCRIPT_VERSION);
+function buildSubtitle(data) {
+  const parts = [];
 
-  return loadNews().then(function (json) {
-    const data = json.data || json;
-    const date = data.date || "";
-    let news = Array.isArray(data.news) ? data.news.slice() : [];
-    const tip = data.tip || "";
+  const date = cleanText(data.date) || getToday();
+  const weekday = cleanText(
+    data.day_of_week || data.weekday || data.week
+  );
+  const lunar = cleanText(
+    data.lunar_date || data.lunar || data.chinese_calendar
+  );
 
-    if (!news.length) {
-      throw new Error("新闻列表为空");
+  parts.push(date);
+
+  if (weekday) parts.push(weekday);
+  if (lunar) parts.push(lunar);
+
+  return parts.join(" · ");
+}
+
+function buildBody(news, tip) {
+  const lines = [];
+
+  news.forEach((item, index) => {
+    let text = "";
+
+    if (typeof item === "string") {
+      text = item;
+    } else if (item && typeof item === "object") {
+      text = cleanText(
+        item.title || item.content || item.text || item.name
+      );
     }
 
-    // 新闻条数限制
+    if (text) {
+      lines.push((index + 1) + ". " + text);
+    }
+  });
+
+  if (tip) {
+    lines.push("");
+    lines.push("【微语】");
+    lines.push(tip);
+  }
+
+  return lines.join("\n");
+}
+
+function notify(title, subtitle, body, openURL) {
+  $notify(title, subtitle, body, {
+    "open-url": openURL
+  });
+}
+
+// ==================== 主流程 ====================
+
+function main() {
+  return loadNews().then(data => {
+    const newsList = data.news || [];
+    const tip = cleanText(
+      data.tip || data.note || data.quote || data.micro_tip
+    );
+
+    const date = cleanText(data.date) || getToday();
+    const openURL = buildHTMLURL(date);
+
+    let news = newsList.slice();
+
     if (MAX_NEWS > 0) {
       news = news.slice(0, MAX_NEWS);
     }
 
-    // 生成带日期参数的 HTML 海报地址
-    const openURL = buildHTMLURL(date);
-    const subtitle = buildSubtitle(data);
-
-    // 生成一条或多条通知
-    const chunks = MULTI_NOTIFY
-      ? chunkArray(news, CHUNK_SIZE)
-      : [news];
-
-    for (let i = 0; i < chunks.length; i++) {
-      const isLast = i === chunks.length - 1;
-      const startIndex = MULTI_NOTIFY ? i * CHUNK_SIZE : 0;
-
-      const title = chunks.length > 1
-        ? TITLE_MAIN + " (" + (i + 1) + "/" + chunks.length + ")"
-        : TITLE_MAIN;
-
-      const body = buildBody(
-        chunks[i],
-        startIndex,
-        isLast ? tip : ""
-      );
-
-      // 每条通知均打开对应日期的 HTML 页面
-      notify(title, subtitle, body, openURL);
+    if (news.length === 0) {
+      throw new Error("没有可用于推送的新闻");
     }
 
-    // ALLOW_REPEAT=true：不读取、不写入同日去重状态
-    log("推送完成，新闻 " + news.length + " 条");
-    log("海报地址：" + openURL);
-    log("同日重复推送：已允许");
+    const subtitle = buildSubtitle(data);
+
+    if (MULTI_NOTIFY) {
+      const size = Math.max(1, CHUNK_SIZE);
+      const chunks = [];
+
+      for (let i = 0; i < news.length; i += size) {
+        chunks.push(news.slice(i, i + size));
+      }
+
+      chunks.forEach((chunk, index) => {
+        const body = buildBody(chunk, index === chunks.length - 1 ? tip : "");
+
+        notify(
+          "每日60秒新闻（" + (index + 1) + "/" + chunks.length + "）",
+          subtitle,
+          body,
+          openURL
+        );
+      });
+    } else {
+      notify(
+        "每日60秒读懂世界",
+        subtitle,
+        buildBody(news, tip),
+        openURL
+      );
+    }
+
+    console.log("新闻推送完成，日期：" + date);
+    console.log("海报链接：" + openURL);
   });
 }
 
-// 保证任务结束
-main().catch(function (error) {
-  log("运行失败：" + getError(error));
+main()
+  .catch(error => {
+    console.log("每日60秒新闻推送失败：" + error.message);
 
-  try {
     $notify(
-      TITLE_MAIN,
-      "获取失败",
-      getError(error).slice(0, 200)
+      "每日60秒新闻获取失败",
+      "请检查网络或 API 状态",
+      cleanText(error.message)
     );
-  } catch (_) {
-    // 忽略通知错误
-  }
-}).then(function () {
-  $done();
-});
+  })
+  .finally(() => {
+    $done();
+  });
