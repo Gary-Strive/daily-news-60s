@@ -26,14 +26,16 @@ body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pin
 .weather{margin-top:10px;font-size:13px;color:#294f6c}
 .content{padding:24px 28px 22px}
 .status{font-size:12px;color:var(--muted);margin:0 0 10px}
-.news-item{display:grid;grid-template-columns:48px minmax(0,1fr) 180px;gap:14px;align-items:start;padding:17px 0;border-bottom:1px solid var(--line)}
-.news-item:last-of-type{border-bottom:0}
-.number{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:#dce7f1;color:#183b5a;font-family:Georgia,serif;font-size:19px}
-.category{color:var(--blue);font-size:14px;letter-spacing:.5px;margin:0 0 5px}
-.news-title{font-family:"Songti SC","STSong","Noto Serif CJK SC",serif;font-size:19px;line-height:1.5;font-weight:700;margin:0 0 6px;color:#102844}
-.news-desc{font-size:14px;line-height:1.85;color:#43586d;margin:0;overflow-wrap:anywhere}
-.thumb{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;background:#dce6ed}
-.thumb-placeholder{aspect-ratio:16/10;border-radius:8px;background:linear-gradient(140deg,#dceaf4,#a8c4d9 50%,#edf3f6);display:grid;place-items:center;color:#65839b;font-size:12px;letter-spacing:2px}
+.news-list{display:flex;flex-direction:column}
+.news-item{display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;align-items:start;padding:20px 0;border-bottom:1px solid var(--line)}
+.news-item:last-child{border-bottom:0}
+.number{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:#e5eef6;color:#315e83;font-family:Georgia,serif;font-size:17px;font-weight:700}
+.news-copy{min-width:0}
+.category{color:var(--blue);font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 6px}
+.news-title{font-family:"Songti SC","STSong","Noto Serif CJK SC",serif;font-size:19px;line-height:1.55;font-weight:700;margin:0 0 7px;color:#102844}
+.news-desc{font-size:14px;line-height:1.9;color:#43586d;margin:0;overflow-wrap:anywhere;white-space:pre-line}
+.news-item:nth-child(odd) .number{background:#eaf2f8}
+.news-item:nth-child(even) .number{background:#f0eee8;color:#806c50}
 .quote{margin:18px 0 0;padding:18px 20px;border-radius:9px;background:linear-gradient(110deg,#e5eff8,#f0f5f8);display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center}
 .leaf{font-size:22px;color:var(--blue)}
 .quote h2{font-size:19px;color:var(--blue);margin:0 0 5px;font-family:"Songti SC","STSong",serif}
@@ -49,11 +51,10 @@ body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pin
  .date{font-size:15px}.weekday{font-size:13px}.lunar{font-size:10px}.weather{font-size:11px}
  .brand h1{letter-spacing:0}.tagline{letter-spacing:1px}.english{letter-spacing:1.5px}
  .content{padding:16px 17px 20px}
- .news-item{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:15px 0}
- .number{width:32px;height:32px;font-size:16px}
+ .news-item{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:16px 0}
+ .number{width:30px;height:30px;border-radius:9px;font-size:14px}
  .news-title{font-size:17px}
- .news-desc{font-size:13px;line-height:1.8}
- .thumb,.thumb-placeholder{grid-column:2;max-width:240px;margin-top:2px}
+ .news-desc{font-size:13px;line-height:1.85}
  .quote{padding:15px 13px;grid-template-columns:22px 1fr;gap:8px}
  .quote-art{display:none}
 }
@@ -114,10 +115,11 @@ function render(data){
  var list=Array.isArray(d.news)?d.news:[];
  var host=document.getElementById("news");
  if(!list.length) throw new Error("接口没有返回新闻列表");
- host.innerHTML=list.slice(0,5).map(function(n,i){
+ host.className="news-list";
+ host.innerHTML=list.map(function(n,i){
    if(typeof n==="string")n={title:n};
-   var title=itemTitle(n),desc=itemDesc(n),img=itemImage(n),cat=itemCategory(n,i);
-   return '<article class="news-item"><div class="number">'+String(i+1).padStart(2,"0")+'</div><div class="news-copy"><p class="category">'+esc(cat)+'</p><h2 class="news-title">'+esc(title)+'</h2>'+(desc?'<p class="news-desc">'+esc(desc)+'</p>':'')+'</div>'+(img?'<img class="thumb" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="thumb-placeholder">60 SECONDS</div>')+'</article>';
+   var title=itemTitle(n),desc=itemDesc(n),cat=itemCategory(n,i);
+   return '<article class="news-item"><div class="number">'+String(i+1).padStart(2,"0")+'</div><div class="news-copy"><p class="category">'+esc(cat)+'</p><h2 class="news-title">'+esc(title)+'</h2>'+(desc?'<p class="news-desc">'+esc(desc)+'</p>':'')+'</div></article>';
  }).join("");
  var tip=text(d.tip||d.note||d.quote||d.micro_tip||"真正的强大，不是从不跌倒，而是跌倒后依然选择向前。");
  document.getElementById("tip").textContent=tip;
