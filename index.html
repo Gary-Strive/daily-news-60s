@@ -11,7 +11,7 @@
 html{background:#edf2f5}
 body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#eaf2f8 0,#f8fafb 34rem,#f5f8fa 100%);-webkit-font-smoothing:antialiased}
 .page{width:min(100%,900px);margin:0 auto;background:var(--paper);box-shadow:0 12px 50px #1a385012;overflow:hidden}
-.hero{position:relative;min-height:220px;margin:16px 24px 0;padding:26px 36px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:18px;isolation:isolate;overflow:hidden;border-radius:24px 24px 0 0;background:linear-gradient(135deg,#f3f9fd 0%,#e5f2fa 48%,#f8fbfd 100%)}
+.hero{position:relative;min-height:220px;margin:16px 24px 0;padding:24px 36px;display:flex;justify-content:space-between;align-items:center;gap:18px;isolation:isolate;overflow:hidden;border-radius:24px 24px 0 0;background:linear-gradient(135deg,#f3f9fd 0%,#e5f2fa 48%,#f8fbfd 100%)}
 .hero:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 78% 15%,rgba(255,255,255,.95) 0%,rgba(255,255,255,0) 42%),radial-gradient(ellipse at 10% 100%,rgba(193,220,239,.32) 0%,rgba(193,220,239,0) 48%),linear-gradient(180deg,#f2f8fc 0%,#e9f4fb 70%,#f8fbfd 100%)}
 .hero:after{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,#c5dfef,#e6f2f9,#c5dfef);pointer-events:none}
 .brand,.datebox{position:relative;z-index:1}
@@ -44,7 +44,7 @@ body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pin
 .footer:before,.footer:after{content:"";height:1px;background:#d7e2eb;flex:1}
 .error{padding:24px;text-align:center;color:#6b7f90;font-size:14px}
 @media(max-width:620px){
- .hero{min-height:190px;margin:10px 10px 0;padding:20px 16px 16px;gap:8px;border-radius:20px 20px 0 0}
+ .hero{min-height:190px;margin:10px 10px 0;padding:18px 16px;gap:8px;border-radius:20px 20px 0 0;align-items:center}
  .datebox{flex:0 0 100px;min-width:100px;padding:0}
  .date{font-size:12px}.weekday{font-size:11px}.lunar{font-size:10px;margin-top:6px;padding-top:5px}.weather{font-size:10px}
  .brand h1{font-size:clamp(22px,6vw,32px);letter-spacing:0;white-space:nowrap}.clock{font-size:.6em}
