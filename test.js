@@ -1,7 +1,5 @@
 /**
- * 60秒读懂世界 - Quantumult X
- * 数据源：vikiboss/60s
- * 建议定时：每天 08:30
+ * 60秒读懂世界 - QX API 调试版
  */
 
 const url = "https://60s.viki.moe/v2/60s";
@@ -13,50 +11,28 @@ $task.fetch({
     "Accept": "application/json"
   }
 }).then(response => {
-  if (response.statusCode !== 200) {
-    throw new Error("HTTP 状态码：" + response.statusCode);
+  const body = response.body || "";
+
+  console.log("HTTP状态码：" + response.statusCode);
+  console.log("返回内容：" + body.slice(0, 1500));
+
+  let data;
+  try {
+    data = JSON.parse(body);
+  } catch (e) {
+    throw new Error("返回内容不是有效JSON，请查看上方日志");
   }
 
-  const data = JSON.parse(response.body);
+  console.log("顶层字段：" + Object.keys(data).join(", "));
 
-  if (!data || !Array.isArray(data.news)) {
-    throw new Error("新闻数据格式异常");
-  }
-
-  const date = data.date || "每日新闻";
-
-  const newsText = data.news.map((item, index) => {
-    const title = typeof item === "string"
-      ? item
-      : item.title;
-
-    return title ? (index + 1) + ". " + title : "";
-  }).filter(Boolean).join("\n");
-
-  const tip = data.tip
-    ? "\n\n每日微语：" + data.tip
-    : "";
-
-  if (!newsText) {
-    throw new Error("新闻列表为空");
-  }
-
-  // 避免单条系统通知内容过长
-  const maxLength = 1800;
-  let message = newsText + tip;
-
-  if (message.length > maxLength) {
-    message = message.slice(0, maxLength) + "\n…内容已截断";
-  }
-
-  $notify("60秒读懂世界", date, message);
-  console.log("60秒新闻推送成功：" + date);
+  // 临时检查，不发送正式新闻通知
+  $notify(
+    "60秒接口调试",
+    "HTTP " + response.statusCode,
+    "已获取响应，请查看 QX 日志"
+  );
 
 }).catch(error => {
-  console.log("60秒新闻获取失败：" + error);
-  $notify(
-    "60秒读懂世界",
-    "新闻获取失败",
-    String(error)
-  );
+  console.log("接口调试失败：" + error);
+  $notify("60秒接口调试失败", "", String(error));
 });
