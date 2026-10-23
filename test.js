@@ -1,14 +1,19 @@
+
 /**
  * 每日60S — Quantumult X 版
  * 基于 Nullwhy/Egern 的 Day60s 模块转换
- * 保留：定时推送、新闻条数、多条通知、海报跳转、同日去重、备用 API
  *
- * QX 配置项均在下方修改。
+ * 功能：
+ * 1. 通知正文显示新闻文字和每日微语
+ * 2. 点击通知打开对应日期的 HTML 海报
+ * 3. 关联 GitHub Pages
+ * 4. 同日允许多次推送
+ * 5. 保留备用 API、多条通知、新闻数量限制
  */
 
 const SCRIPT_NAME = "每日60S";
 const TITLE_MAIN = "每日60S · 读懂世界 💭";
-const SCRIPT_VERSION = "QX-v1.0";
+const SCRIPT_VERSION = "QX-v1.1";
 
 // ===== 用户配置 =====
 const API_URL = "https://60s-api.viki.moe/v2/60s";
@@ -18,10 +23,15 @@ const FALLBACK_APIS = [
 
 const MAX_NEWS = 5;          // 0=全部新闻
 const MULTI_NOTIFY = false;  // true=拆分为多条通知
-const CHUNK_SIZE = 5;         // 每条通知新闻数
-const OPEN_URL = "image";     // image=点击打开海报，none=不跳转
-const ALLOW_REPEAT = false;   // false=同日只推送一次
+const CHUNK_SIZE = 5;        // 每条通知新闻数
 
+// HTML 海报页面
+const HTML_URL = "https://gary-strive.github.io/daily60s/";
+
+// 同日允许多次推送
+const ALLOW_REPEAT = true;
+
+// 保留原配置项，但不再用于同日去重
 const STORE_KEY = "60s_last_date_qx";
 
 // ===== 基础工具 =====
@@ -54,7 +64,7 @@ function buildBody(news, startIndex, tip) {
   const lines = news.map((item, index) => {
     let title = typeof item === "string"
       ? item
-      : item && (item.title || item.text);
+      : item && (item.title || item.text || item.content);
 
     title = stripLeadingIndex(title || "");
     return title ? (startIndex + index + 1) + ". " + title : "";
@@ -85,36 +95,16 @@ function buildSubtitle(data) {
   return result || "读懂世界";
 }
 
-// ===== 海报地址 =====
-function resolveImageURL(image) {
-  let url = String(image || "").trim();
+// ===== HTML 海报地址 =====
+function buildHTMLURL(date) {
+  let url = HTML_URL;
 
-  if (url.indexOf("//") === 0) {
-    url = "https:" + url;
+  // 日期参数用于让网页识别对应日期
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(date || ""))) {
+    url += "?date=" + encodeURIComponent(date);
   }
-
-  if (!/^https?:\/\//i.test(url)) {
-    if (/^[a-z0-9.-]+\//i.test(url)) {
-      url = "https://" + url;
-    } else {
-      return "";
-    }
-  }
-
-  url = url.replace(/^http:\/\//i, "https://");
-
-  if (/^data:/i.test(url)) return "";
 
   return url;
-}
-
-function posterByDate(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ""))) {
-    return "";
-  }
-
-  return "https://cdn.jsdmirror.com/gh/vikiboss/60s-static-host@main/static/images/"
-    + date + ".png";
 }
 
 // ===== QX 请求 =====
@@ -150,6 +140,7 @@ function fetchJSON(url) {
 
 function loadNews() {
   const urls = [];
+
   [API_URL].concat(FALLBACK_APIS).forEach(function (url) {
     if (url && urls.indexOf(url) === -1) {
       urls.push(url);
@@ -186,7 +177,7 @@ function main() {
   log("开始运行 " + SCRIPT_VERSION);
 
   return loadNews().then(function (json) {
-    const data = json.data || {};
+    const data = json.data || json;
     const date = data.date || "";
     let news = Array.isArray(data.news) ? data.news.slice() : [];
     const tip = data.tip || "";
@@ -195,43 +186,19 @@ function main() {
       throw new Error("新闻列表为空");
     }
 
-    // 同日去重
-    if (!ALLOW_REPEAT && date) {
-      const lastDate = $prefs.valueForKey(STORE_KEY);
-
-      if (lastDate === date) {
-        log("今日已推送，跳过：" + date);
-        return;
-      }
-    }
-
     // 新闻条数限制
-    if (MAX_NEWS > 0 && !MULTI_NOTIFY) {
-      news = news.slice(0, MAX_NEWS);
-    } else if (MAX_NEWS > 0 && MULTI_NOTIFY && MAX_NEWS > CHUNK_SIZE) {
+    if (MAX_NEWS > 0) {
       news = news.slice(0, MAX_NEWS);
     }
 
-    // 图片跳转
-    let openURL = "";
+    // 生成带日期参数的 HTML 海报地址
+    const openURL = buildHTMLURL(date);
+    const subtitle = buildSubtitle(data);
 
-    if (OPEN_URL.toLowerCase() === "image") {
-      openURL = resolveImageURL(data.image || data.cover || "");
-      if (!openURL) {
-        openURL = posterByDate(date);
-      }
-
-      // 若没有海报地址，退回官方图片接口
-      if (!openURL) {
-        openURL = "https://60s.viki.moe/v2/60s?encoding=image";
-      }
-    }
-
+    // 生成一条或多条通知
     const chunks = MULTI_NOTIFY
       ? chunkArray(news, CHUNK_SIZE)
       : [news];
-
-    const subtitle = buildSubtitle(data);
 
     for (let i = 0; i < chunks.length; i++) {
       const isLast = i === chunks.length - 1;
@@ -247,25 +214,18 @@ function main() {
         isLast ? tip : ""
       );
 
-      // 仅最后一条通知附加图片跳转
-      notify(
-        title,
-        subtitle,
-        body,
-        isLast ? openURL : ""
-      );
+      // 每条通知均打开对应日期的 HTML 页面
+      notify(title, subtitle, body, openURL);
     }
 
-    // 保存日期，防止当天重复推送
-    if (!ALLOW_REPEAT && date) {
-      $prefs.setValueForKey(date, STORE_KEY);
-    }
-
+    // ALLOW_REPEAT=true：不读取、不写入同日去重状态
     log("推送完成，新闻 " + news.length + " 条");
+    log("海报地址：" + openURL);
+    log("同日重复推送：已允许");
   });
 }
 
-// 保证任务结束，避免长期显示为活跃 JS
+// 保证任务结束
 main().catch(function (error) {
   log("运行失败：" + getError(error));
 
