@@ -4,63 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#eaf2f8">
-<title>每日60秒 · 读懂世界</title>
+<title>每天60秒 · 读懂世界</title>
 <style>
 :root{--ink:#132c46;--muted:#5d7185;--blue:#568bc6;--line:#dce6ee;--paper:#f8fafb;--pale:#e7f0f8}
 *{box-sizing:border-box}
 html{background:#edf2f5}
 body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#eaf2f8 0,#f8fafb 34rem,#f5f8fa 100%);-webkit-font-smoothing:antialiased}
 .page{width:min(100%,900px);margin:0 auto;background:var(--paper);box-shadow:0 12px 50px #1a385012;overflow:hidden}
-.hero{position:relative;min-height:300px;margin:20px 29px 0;padding:35px 45px 30px;display:flex;justify-content:space-between;align-items:flex-start;gap:18px;isolation:isolate;overflow:hidden;border-radius:28px 28px 0 0;background:linear-gradient(135deg,#f3f9fd 0%,#e5f2fa 48%,#f8fbfd 100%)}
+.hero{position:relative;min-height:220px;margin:16px 24px 0;padding:26px 36px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:18px;isolation:isolate;overflow:hidden;border-radius:24px 24px 0 0;background:linear-gradient(135deg,#f3f9fd 0%,#e5f2fa 48%,#f8fbfd 100%)}
 .hero:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 78% 15%,rgba(255,255,255,.95) 0%,rgba(255,255,255,0) 42%),radial-gradient(ellipse at 10% 100%,rgba(193,220,239,.32) 0%,rgba(193,220,239,0) 48%),linear-gradient(180deg,#f2f8fc 0%,#e9f4fb 70%,#f8fbfd 100%)}
 .hero:after{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,#c5dfef,#e6f2f9,#c5dfef);pointer-events:none}
 .brand,.datebox{position:relative;z-index:1}
-.datebox{flex:0 0 150px;text-align:right;min-width:150px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#15324a;backdrop-filter:none;-webkit-backdrop-filter:none}
-.brand h1{margin:0;font-family:"Songti SC","STSong","Noto Serif CJK SC",serif;font-size:clamp(40px,7vw,64px);line-height:1.12;letter-spacing:2px;font-weight:800;color:#102e49;text-shadow:none}
-.clock{font-size:.72em;font-weight:400;white-space:nowrap}
-.tagline{font-family:"Songti SC","STSong",serif;font-size:clamp(15px,2.8vw,22px);letter-spacing:2px;margin:12px 0 6px;color:#234761;text-shadow:none}
-.english{font-size:11px;letter-spacing:3px;color:#203e56}
-.date{font-family:Georgia,serif;font-size:18px;font-weight:700;white-space:nowrap;color:#102c45}
-.weekday{font-size:15px;margin-top:3px;color:#173b55}
-.lunar{border-top:1px solid rgba(35,70,94,.28);margin-top:10px;padding-top:9px;font-size:12px;color:#27465d}
-.weather{margin-top:9px;font-size:13px;color:#183b55}
-.hero-slogan{position:absolute;right:38px;bottom:24px;z-index:2;color:#426985;text-align:right;font-family:"KaiTi","STKaiti","Songti SC",serif;font-size:20px;line-height:1.45;letter-spacing:2px;text-shadow:none;transform:rotate(-3deg)}
-.hero-slogan:after{content:"";display:block;width:145px;height:2px;background:#9bbbd1;margin:4px 0 0 auto;transform:rotate(-7deg);box-shadow:none}
-.content{padding:24px 28px 22px}
-.status{font-size:12px;color:var(--muted);margin:0 0 10px}
+.datebox{flex:0 0 140px;text-align:right;min-width:140px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:#15324a;backdrop-filter:none;-webkit-backdrop-filter:none}
+.brand h1{margin:0;font-family:"Georgia","Songti SC","STSong","Noto Serif CJK SC",serif;font-size:clamp(28px,5vw,42px);line-height:1.1;letter-spacing:1px;font-weight:900;color:#0c253c;font-style:italic;background:linear-gradient(120deg,#0e2942 30%,#396f9c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.clock{font-size:.65em;font-weight:400;white-space:nowrap;-webkit-text-fill-color:#396f9c}
+.tagline{font-family:"Songti SC","STSong",serif;font-size:clamp(14px,2.5vw,19px);letter-spacing:2px;margin:8px 0 4px;color:#234761}
+.english{font-size:11px;letter-spacing:3px;color:#506d84;text-transform:uppercase}
+.date{font-family:Georgia,serif;font-size:17px;font-weight:700;white-space:nowrap;color:#102c45}
+.weekday{font-size:14px;margin-top:2px;color:#173b55}
+.lunar{border-top:1px solid rgba(35,70,94,.2);margin-top:8px;padding-top:7px;font-size:12px;color:#27465d}
+.weather{margin-top:6px;font-size:12px;color:#183b55}
+.content{padding:20px 24px 18px}
+.status{font-size:12px;color:var(--muted);margin:0 0 8px}
 .news-list{display:flex;flex-direction:column}
-.news-item{display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;align-items:start;padding:20px 0;border-bottom:1px solid var(--line)}
+.news-item{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start;padding:16px 0;border-bottom:1px solid var(--line)}
 .news-item:last-child{border-bottom:0}
-.number{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:#e5eef6;color:#315e83;font-family:Georgia,serif;font-size:17px;font-weight:700}
+.number{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#e5eef6;color:#315e83;font-family:Georgia,serif;font-size:16px;font-weight:700}
 .news-copy{min-width:0}
-.category{color:var(--blue);font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 6px}
-.news-title{font-family:"Songti SC","STSong","Noto Serif CJK SC",serif;font-size:19px;line-height:1.55;font-weight:700;margin:0 0 7px;color:#102844}
-.news-desc{font-size:14px;line-height:1.9;color:#43586d;margin:0;overflow-wrap:anywhere;white-space:pre-line}
+.news-title{font-family:"Songti SC","STSong","Noto Serif CJK SC",serif;font-size:18px;line-height:1.5;font-weight:700;margin:0 0 6px;color:#102844}
+.news-desc{font-size:14px;line-height:1.85;color:#43586d;margin:0;overflow-wrap:anywhere;white-space:pre-line}
 .news-item:nth-child(odd) .number{background:#eaf2f8}
 .news-item:nth-child(even) .number{background:#f0eee8;color:#806c50}
-.quote{margin:18px 0 0;padding:18px 20px;border-radius:9px;background:linear-gradient(110deg,#e5eff8,#f0f5f8);display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center}
-.leaf{font-size:22px;color:var(--blue)}
-.quote h2{font-size:19px;color:var(--blue);margin:0 0 5px;font-family:"Songti SC","STSong",serif}
-.quote p{font-family:"Songti SC","STSong",serif;font-size:15px;line-height:1.75;margin:0;color:#173653}
-.quote small{display:block;color:#7a8d9c;font-size:11px;margin-top:3px}
-.quote-art{font-family:"KaiTi","STKaiti",serif;font-size:17px;line-height:1.6;text-align:center;white-space:nowrap;color:#436b8a}
-.footer{display:flex;align-items:center;gap:14px;justify-content:center;color:#9bafc0;letter-spacing:4px;font-size:12px;padding:20px 0 3px}
+.quote{margin:14px 0 0;padding:16px 18px;border-radius:9px;background:linear-gradient(110deg,#e5eff8,#f0f5f8);display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center}
+.leaf{font-size:20px;color:var(--blue)}
+.quote h2{font-size:18px;color:var(--blue);margin:0 0 4px;font-family:"Songti SC","STSong",serif}
+.quote p{font-family:"Songti SC","STSong",serif;font-size:14px;line-height:1.7;margin:0;color:#173653}
+.quote small{display:block;color:#7a8d9c;font-size:11px;margin-top:2px}
+.footer{display:flex;align-items:center;gap:14px;justify-content:center;color:#9bafc0;letter-spacing:4px;font-size:12px;padding:16px 0 2px}
 .footer:before,.footer:after{content:"";height:1px;background:#d7e2eb;flex:1}
 .error{padding:24px;text-align:center;color:#6b7f90;font-size:14px}
 @media(max-width:620px){
- .hero{min-height:245px;margin:12px 12px 0;padding:25px 18px 20px;gap:8px;border-radius:24px 24px 0 0;background-position:center}
- .datebox{flex:0 0 105px;min-width:105px;padding:0}
- .date{font-size:13px}.weekday{font-size:12px}.lunar{font-size:10px;margin-top:8px;padding-top:7px}.weather{font-size:10px}
- .brand h1{font-size:clamp(28px,7vw,42px);letter-spacing:0;white-space:nowrap}.clock{font-size:.65em}
- .tagline{font-size:13px;letter-spacing:0;margin-top:10px}.english{font-size:8px;letter-spacing:1.5px}
- .hero-slogan{right:18px;bottom:20px;font-size:16px;letter-spacing:1px}.hero-slogan:after{width:100px}
- .content{padding:16px 17px 20px}
- .news-item{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:16px 0}
- .number{width:30px;height:30px;border-radius:9px;font-size:14px}
- .news-title{font-size:17px}
- .news-desc{font-size:13px;line-height:1.85}
- .quote{padding:15px 13px;grid-template-columns:22px 1fr;gap:8px}
- .quote-art{display:none}
+ .hero{min-height:190px;margin:10px 10px 0;padding:20px 16px 16px;gap:8px;border-radius:20px 20px 0 0}
+ .datebox{flex:0 0 100px;min-width:100px;padding:0}
+ .date{font-size:12px}.weekday{font-size:11px}.lunar{font-size:10px;margin-top:6px;padding-top:5px}.weather{font-size:10px}
+ .brand h1{font-size:clamp(22px,6vw,32px);letter-spacing:0;white-space:nowrap}.clock{font-size:.6em}
+ .tagline{font-size:12px;letter-spacing:0;margin-top:6px}.english{font-size:8px;letter-spacing:1px}
+ .content{padding:14px 15px 16px}
+ .news-item{grid-template-columns:32px minmax(0,1fr);gap:10px;padding:14px 0}
+ .number{width:28px;height:28px;border-radius:8px;font-size:13px}
+ .news-title{font-size:16px}
+ .news-desc{font-size:13px;line-height:1.75}
+ .quote{padding:13px 12px;grid-template-columns:20px 1fr;gap:8px}
 }
 @media print{html,body{background:white}.page{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.quote{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
 </style>
@@ -69,7 +63,7 @@ body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pin
 <main class="page">
 <header class="hero">
   <div class="brand">
-    <h1>每日60秒 <span class="clock">◷</span></h1>
+    <h1>每天60秒 <span class="clock">◷</span></h1>
     <p class="tagline">读懂世界 · 看见更大的世界</p>
     <div class="english">60 SECONDS DAILY</div>
   </div>
@@ -79,17 +73,19 @@ body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Pin
     <div class="lunar" id="lunar"></div>
     <div class="weather">☼　16°C · 晴</div>
   </div>
-  <div class="hero-slogan">每天60秒<br>遇见更好的世界</div>
 </header>
 <section class="content">
   <p class="status" id="status">正在获取今日新闻…</p>
   <div id="news"></div>
   <section class="quote">
     <div class="leaf">❧</div>
-    <div><h2>微语</h2><p id="tip">心怀热爱，奔赴山海。</p><small id="tip-author">—— 每日一语</small></div>
-    <div class="quote-art">保持热爱<br>奔赴山海</div>
+    <div>
+      <h2>微语</h2>
+      <p id="tip">心怀热爱，奔赴山海。</p>
+      <small id="tip-author">—— 每日一语</small>
+    </div>
   </section>
-  <footer class="footer">每日60秒　读懂世界</footer>
+  <footer class="footer">每天60秒　读懂世界</footer>
 </section>
 </main>
 <script>
@@ -103,8 +99,6 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 function text(v){return typeof v==="string"?v:(v==null?"":String(v))}
 function itemTitle(n){return text(n.title||n.content||n.text||n.name||n)}
 function itemDesc(n){return text(n.description||n.summary||n.digest||n.desc||"")}
-function itemCategory(n,i){return text(n.category||n.type||n.tag||["国内新闻","国际新闻","科技前沿","社会民生","文化教育"][i%5])}
-function itemImage(n){return text(n.image||n.img||n.cover||n.pic||n.thumbnail||"")}
 function render(data){
  var d=data.data||data;
  var date=text(d.date)||new Date().toISOString().slice(0,10);
@@ -123,8 +117,8 @@ function render(data){
  host.className="news-list";
  host.innerHTML=list.map(function(n,i){
    if(typeof n==="string")n={title:n};
-   var title=itemTitle(n),desc=itemDesc(n),cat=itemCategory(n,i);
-   return '<article class="news-item"><div class="number">'+String(i+1).padStart(2,"0")+'</div><div class="news-copy"><p class="category">'+esc(cat)+'</p><h2 class="news-title">'+esc(title)+'</h2>'+(desc?'<p class="news-desc">'+esc(desc)+'</p>':'')+'</div></article>';
+   var title=itemTitle(n),desc=itemDesc(n);
+   return '<article class="news-item"><div class="number">'+String(i+1).padStart(2,"0")+'</div><div class="news-copy"><h2 class="news-title">'+esc(title)+'</h2>'+(desc?'<p class="news-desc">'+esc(desc)+'</p>':'')+'</div></article>';
  }).join("");
  var tip=text(d.tip||d.note||d.quote||d.micro_tip||"真正的强大，不是从不跌倒，而是跌倒后依然选择向前。");
  document.getElementById("tip").textContent=tip;
